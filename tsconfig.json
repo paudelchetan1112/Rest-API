@@ -25,6 +25,7 @@
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
    "allowImportingTsExtensions":true,
+   "allowSyntheticDefaultImports":true,
 
     // Style Options
     // "noImplicitReturns": true,
@@ -43,5 +44,6 @@
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true,
+  
   }
 }

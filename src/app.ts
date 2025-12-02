@@ -1,10 +1,26 @@
 import express from 'express'
+import createHttpError from 'http-errors'
+import globalErrorHandler from './middlewares/globalErrorHandler.ts'
+import userRouter from './User/userRouter.ts'
 
-const app = express()
+import type { Response,Request, NextFunction } from 'express'
+
+
+
+const app=express();
+app.use(express.json())
+
 
 //Routes
 //http methods: Get, Post, put, patch, delete
-app.get('/',(req,res)=>{
-    res.send("welcome to the server")
+app.get("/", (req:Request, res:Response,next:NextFunction)=>{
+ const error=createHttpError(400,"something went wrong")
+ throw error;
+ next()
+
+    // res.json({"message":"welcome to the ebook api"})
 })
+app.use('/api/users',userRouter)
+app.use(globalErrorHandler)
+
 export default app
