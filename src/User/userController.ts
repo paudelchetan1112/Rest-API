@@ -3,47 +3,71 @@ import createHttpError from "http-errors";
 import userModel from "./userModel.ts";
 import bcrypt from "bcrypt";
 import { config } from "../config/config.ts";
-import pkg from "jsonwebtoken"
-const {sign}=pkg;
+import pkg from "jsonwebtoken";
+import type { User } from "./userTypes.ts";
+
+const { sign } = pkg;
 
 export const createUser = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { name, email, password } = req.body;
+  let name: string, email: string, password: string;
 
-    // validation
+  // Step 1: Validation
+  try {
+    ({ name, email, password } = req.body);
+
     if (!name || !email || !password) {
       return next(createHttpError(400, "All fields are required"));
     }
+  } catch (error) {
+    return next(createHttpError(400, "Error while reading user data"));
+  }
 
-    // check if user already exists
+  // Step 2: Check existing user
+  try {
     const existingUser = await userModel.findOne({ email });
     if (existingUser) {
-      return next(createHttpError(400, "User already exists with this email."));
+      return next(createHttpError(400, "User already exists with this email"));
     }
+  } catch (error) {
+    return next(createHttpError(500, "Error while checking existing user"));
+  }
 
-    // hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+  // Step 3: Hash password
+  let hashedPassword: string;
+  try {
+    hashedPassword = await bcrypt.hash(password, 10);
+  } catch (error) {
+    return next(createHttpError(500, "Error while hashing password"));
+  }
 
-    // create new user
-    const newUser = await userModel.create({
-      name,
-      email,
-      password: hashedPassword,
-    });
-
-    // generate JWT
+  // Step 4: Create user
+  let newUser: User;
+  try {
     if (!config.jwtSecret) {
       return next(createHttpError(500, "JWT secret is not configured"));
     }
 
-    const token = sign({ sub: newUser._id }, config.jwtSecret, { expiresIn: "7d" });
+    newUser = await userModel.create({
+      name,
+      email,
+      password: hashedPassword,
+    });
+  } catch (error) {
+    return next(createHttpError(500, "Error while creating user"));
+  }
 
-    // response
-    res.status(201).json({
+  // Step 5: Generate JWT
+  try {
+    const token = sign({ sub: newUser._id }, config.jwtSecret as string, {
+      expiresIn: "7d",
+      algorithm: "HS256",
+    });
+
+    return res.status(201).json({
       accessToken: token,
       user: { id: newUser._id, name: newUser.name, email: newUser.email },
     });
   } catch (error) {
-    next(error);
+    return next(createHttpError(500, "Error while signing JWT"));
   }
 };
