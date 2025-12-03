@@ -1,8 +1,18 @@
 import express from 'express'
+import path from 'node:path'
 import { createBook } from './bookController.ts';
+import multer from 'multer';
 const bookRouter=express.Router();
+//file store local-->
+const upload = multer({
+dest: path.resolve(__dirname,'../../public/data/uploads'),
+limits:{fileSize:3e7}//30mb=30*1024*1024
+})
 
-bookRouter.post("/register",createBook);
+bookRouter.post("/register",upload.fields([
+    {name:'coverImage',maxCount:1},
+    {name:"file",maxCount:1}
+]),createBook);
 export default bookRouter
 
 
