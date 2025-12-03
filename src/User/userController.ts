@@ -5,7 +5,7 @@ import bcrypt from "bcrypt";
 import { config } from "../config/config.ts";
 import pkg from "jsonwebtoken";
 import type { User } from "./userTypes.ts";
-import { create } from "domain";
+
 
 const { sign } = pkg;
 

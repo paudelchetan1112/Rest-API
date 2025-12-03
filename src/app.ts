@@ -4,6 +4,7 @@ import globalErrorHandler from './middlewares/globalErrorHandler.ts'
 import userRouter from './User/userRouter.ts'
 
 import type { Response,Request, NextFunction } from 'express'
+import bookRouter from './book/bookRouter.ts'
 
 
 
@@ -21,6 +22,8 @@ app.get("/", (req:Request, res:Response,next:NextFunction)=>{
     // res.json({"message":"welcome to the ebook api"})
 })
 app.use('/api/users',userRouter)
+app.use('/api/books/',bookRouter)
 app.use(globalErrorHandler)
+
 
 export default app
