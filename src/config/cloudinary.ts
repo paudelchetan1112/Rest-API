@@ -1,9 +1,10 @@
-import { v2 as cloudinary } from 'cloudinary';
-import { config } from './config.ts';
-  cloudinary.config({ 
-        cloud_name: config.cloudinaryCloud, 
-        api_key: config.cloudinaryApikey, 
-        api_secret: config.cloudinarySecret, // Click 'View API Keys' above to copy your API secret
-    });
+import { v2 as cloudinary } from "cloudinary";
+import { config } from "./config.ts";
 
-    export default cloudinary;
+cloudinary.config({
+  cloud_name: config.cloudinaryCloud,
+  api_key: config.cloudinaryApikey,
+  api_secret: config.cloudinarySecret,
+});
+
+export default cloudinary;

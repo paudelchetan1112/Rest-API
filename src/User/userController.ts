@@ -3,12 +3,11 @@ import createHttpError from "http-errors";
 import userModel from "./userModel.ts";
 import bcrypt from "bcrypt";
 import { config } from "../config/config.ts";
-import pkg from "jsonwebtoken";
+import jwt from "jsonwebtoken"
 import type { User } from "./userTypes.ts";
 
 
-const { sign } = pkg;
-
+const {sign}=jwt;
 export const createUser = async (req: Request, res: Response, next: NextFunction) => {
   let name: string, email: string, password: string;
 
@@ -101,6 +100,7 @@ export const loginUser= async (req:Request, res:Response, next:NextFunction)=>{
       accessToken: token
     });
   } catch (error) {
+    console.log(error)
     return next(createHttpError(500, "Error while signing JWT"));
   }
 }

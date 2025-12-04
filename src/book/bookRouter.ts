@@ -2,16 +2,18 @@ import express from "express";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import multer from "multer";
+import fs from "node:fs";
 import { createBook } from "./bookController.ts";
+import authenticate from "../middlewares/authenticate.ts"; // ✅ add authentication
+import { updateBook } from "./bookController.ts";
 
-// ✅ Fix __dirname for ESM
+// Fix __dirname for ESM
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const bookRouter = express.Router();
 
 // ✅ Ensure upload path exists
-import fs from "node:fs";
 const uploadPath = path.resolve(__dirname, "../../public/data/uploads");
 if (!fs.existsSync(uploadPath)) {
   fs.mkdirSync(uploadPath, { recursive: true });
@@ -20,17 +22,19 @@ if (!fs.existsSync(uploadPath)) {
 // ✅ Multer setup
 const upload = multer({
   dest: uploadPath,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 30 MB
+  limits: { fileSize: 30 * 1024 * 1024 }, // 30 MB
 });
 
-// ✅ Route
+// ✅ Route with authentication
 bookRouter.post(
   "/register",
+  authenticate, // ensure only logged-in users can create books
   upload.fields([
     { name: "coverImage", maxCount: 1 },
     { name: "file", maxCount: 1 },
   ]),
   createBook
 );
+bookRouter.patch('/:bookId',authenticate, upload.fields([{name:"coverImage",maxCount:1},{name:"file", maxCount:1}]),updateBook)
 
 export default bookRouter;
