@@ -6,6 +6,8 @@ import fs from "node:fs";
 import { createBook } from "./bookController.ts";
 import authenticate from "../middlewares/authenticate.ts"; // ✅ add authentication
 import { updateBook } from "./bookController.ts";
+import { listBook } from "./bookController.ts";
+import { getSingleBook } from "./bookController.ts";
 
 // Fix __dirname for ESM
 const __filename = fileURLToPath(import.meta.url);
@@ -36,5 +38,7 @@ bookRouter.post(
   createBook
 );
 bookRouter.patch('/:bookId',authenticate, upload.fields([{name:"coverImage",maxCount:1},{name:"file", maxCount:1}]),updateBook)
+bookRouter.get('/',listBook)
+bookRouter.get('/:bookId',getSingleBook)
 
 export default bookRouter;
