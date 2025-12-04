@@ -210,3 +210,58 @@ res.json(book )
 return next(createHttpError(500, "Book "))
   }
 }
+export const deleteBook=async(req:Request, res:Response, next:NextFunction)=>{
+  const bookId=req.params.bookId;
+  const book=await bookModel.findOne({_id:bookId})
+  if(!book){
+    return next(createHttpError(404, "Book Not Found"))
+
+  }
+   const _req = req as AuthRequest;
+  if (book.author.toString() !== _req.userId) {
+    return next(createHttpError(403, "You cannot delete other's book."));
+  }
+// book-covers/g8lxjlurfyr9fzsj5drm 
+
+//"https://res.cloudinary.com/dxhed8gji/image/upload/v1764839620/book-covers/zjh2g6hga0ie1hejj8qg.jpg"
+
+
+/**
+ * Extract Cloudinary public ID from a secure_url
+ * Example: https://res.cloudinary.com/demo/image/upload/v1234567890/book-covers/myImage.jpg
+ * Result: book-covers/myImage
+ */
+
+const coverSplits=book.coverImage.split("/")
+
+console.log(coverSplits)
+const coverImagePublicId=coverSplits.at(-2)+'/'+((coverSplits.at(-1).split("."))).at(-2)
+console.log(coverImagePublicId)
+/**
+ * Extract Cloudinary public ID of pdf  from a secure_url
+ //book public Id format: book-pdfs/vsuucrkmj9lnf9msiv69.pdf
+ * 
+ https://res.cloudinary.com/dxhed8gji/raw/upload/v1764846350/book-pdfs/vsuucrkmj9lnf9msiv69.pdf
+//book public Id format: book-pdfs/vsuucrkmj9lnf9msiv69.pdf**/
+
+
+const bookFileSplits=book.file.split('/');
+const bookFilePublicId=bookFileSplits.at(-2)+"/"+ bookFileSplits.at(-1)
+ 
+  console.log("bookFilePublicId",bookFilePublicId)
+try{
+
+   await cloudinary.uploader.destroy(coverImagePublicId)
+   await cloudinary.uploader.destroy(bookFilePublicId,{resource_type:"raw"});
+}
+catch(error){
+  console.log("Error while deleting coverImage or pdf file of Book in cloudinary",error);
+  return next(createHttpError(500, "Error while deleting book "))
+
+}
+await bookModel.deleteOne({_id: bookId});
+
+
+return res.sendStatus(204)
+
+}

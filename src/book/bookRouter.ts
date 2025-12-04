@@ -8,6 +8,7 @@ import authenticate from "../middlewares/authenticate.ts"; // ✅ add authentica
 import { updateBook } from "./bookController.ts";
 import { listBook } from "./bookController.ts";
 import { getSingleBook } from "./bookController.ts";
+import { deleteBook } from "./bookController.ts";
 
 // Fix __dirname for ESM
 const __filename = fileURLToPath(import.meta.url);
@@ -40,5 +41,6 @@ bookRouter.post(
 bookRouter.patch('/:bookId',authenticate, upload.fields([{name:"coverImage",maxCount:1},{name:"file", maxCount:1}]),updateBook)
 bookRouter.get('/',listBook)
 bookRouter.get('/:bookId',getSingleBook)
+bookRouter.delete('/:bookId',authenticate, deleteBook)
 
 export default bookRouter;
